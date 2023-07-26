@@ -1,0 +1,4 @@
+.env
+env/
+mongo/
+__pycache__/
