@@ -6,7 +6,9 @@ import datetime
 from dateutil import tz
 from telegram import constants
 from telegram.ext import Application, ContextTypes
-from lib.gme_api import get_indexes
+from lib.gme_api import Indexes, get_indexes
+from lib.util import average, icon
+import json
 
 logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
@@ -14,13 +16,53 @@ logging.basicConfig(
 )
 
 CHAT_ID = int(os.environ["CHAT_ID"])
+INDEXES_FILE = "indexes.json"
+
+
+def get_old_indexes():
+    if os.path.exists(INDEXES_FILE):
+        with open(INDEXES_FILE, "r") as f:
+            return json.load(f)
+    return {
+        "pun": [],
+        "mgp_gas": [],
+    }
+
+
+def save_indexes(indexes):
+    with open(INDEXES_FILE, "w") as f:
+        json.dump(indexes, f)
+
+
+def update_indexes(indexes, new_value: Indexes):
+    indexes["pun"].append(new_value["pun"])
+    indexes["mgp_gas"].append(new_value["mgp_gas"])
+    if len(indexes) > 30:
+        indexes["pun"].pop(0)
+        indexes["mgp_gas"].pop(0)
+
+    return indexes
 
 
 async def job_handler(context: ContextTypes.DEFAULT_TYPE):
     indexes = get_indexes()
+    old_indexes = get_old_indexes()
+    new_indexes = update_indexes(old_indexes, indexes)
+    save_indexes(new_indexes)
+
+    pun_avg = average(new_indexes["pun"])
+    mgp_gas_avg = average(new_indexes["mgp_gas"])
+    icons = {
+        "pun": icon(pun_avg - indexes["pun"]),
+        "mgp_gas": icon(mgp_gas_avg - indexes["mgp_gas"]),
+    }
 
     message = f"""
-Indici del mercato elettrico e del gas:
+Indici del mercato elettrico e del gas (30d avg):
+<b>PUN</b>: {pun_avg:.5f} €/kWh {icons["pun"]}
+<b>MGP Gas</b>: {mgp_gas_avg:.5f} €/Smc {icons["mgp_gas"]}
+
+Indici del mercato elettrico e del gas (new):
 <b>PUN</b>: {indexes["pun"]:.5f} €/kWh
 <b>MGP Gas</b>: {indexes["mgp_gas"]:.5f} €/Smc
     """
