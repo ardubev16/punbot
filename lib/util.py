@@ -6,10 +6,11 @@ def average(values):
     return sum(values) / length
 
 
-def icon(value: float):
-    if value > 0:
+def icon(new_value: float, avg: float):
+    diff = new_value - avg
+    if diff > 0:
         return "📈"
-    elif value < 0:
+    elif diff < 0:
         return "📉"
     else:
         return "🔷"

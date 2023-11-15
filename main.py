@@ -53,8 +53,8 @@ async def job_handler(context: ContextTypes.DEFAULT_TYPE):
     pun_avg = average(new_indexes["pun"])
     mgp_gas_avg = average(new_indexes["mgp_gas"])
     icons = {
-        "pun": icon(pun_avg - indexes["pun"]),
-        "mgp_gas": icon(mgp_gas_avg - indexes["mgp_gas"]),
+        "pun": icon(indexes["pun"], pun_avg),
+        "mgp_gas": icon(indexes["mgp_gas"], mgp_gas_avg),
     }
 
     message = f"""
