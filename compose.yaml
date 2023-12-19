@@ -1,4 +1,10 @@
 services:
   bot:
-    build: .
+    image: ghcr.io/ardubev16/punbot:latest
+    # build: .
     env_file: .env
+    volumes:
+      - data:/data
+
+volumes:
+  data:

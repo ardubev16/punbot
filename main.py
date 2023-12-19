@@ -16,7 +16,7 @@ logging.basicConfig(
 )
 
 CHAT_ID = int(os.environ["CHAT_ID"])
-INDEXES_FILE = "indexes.json"
+INDEXES_FILE = "/data/indexes.json"
 
 
 def get_old_indexes():
