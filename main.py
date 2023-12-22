@@ -7,7 +7,7 @@ from dateutil import tz
 from telegram import constants
 from telegram.ext import Application, ContextTypes
 from lib.gme_api import Indexes, get_indexes
-from lib.util import average, icon
+from lib.util import average
 import json
 
 logging.basicConfig(
@@ -35,8 +35,8 @@ def save_indexes(indexes):
 
 
 def update_indexes(indexes, new_value: Indexes):
-    indexes["pun"].append(new_value["pun"])
-    indexes["mgp_gas"].append(new_value["mgp_gas"])
+    indexes["pun"].append(new_value.pun)
+    indexes["mgp_gas"].append(new_value.mgp_gas)
     if len(indexes) > 30:
         indexes["pun"].pop(0)
         indexes["mgp_gas"].pop(0)
@@ -52,19 +52,14 @@ async def job_handler(context: ContextTypes.DEFAULT_TYPE):
 
     pun_avg = average(new_indexes["pun"])
     mgp_gas_avg = average(new_indexes["mgp_gas"])
-    icons = {
-        "pun": icon(indexes["pun"], pun_avg),
-        "mgp_gas": icon(indexes["mgp_gas"], mgp_gas_avg),
-    }
+    avg_indexes = Indexes(pun_avg, mgp_gas_avg)
 
     message = f"""
 Indici del mercato elettrico e del gas (30d avg):
-<b>PUN</b>: {pun_avg:.5f} €/kWh {icons["pun"]}
-<b>MGP Gas</b>: {mgp_gas_avg:.5f} €/Smc {icons["mgp_gas"]}
+{avg_indexes.str_avg(avg_indexes)}
 
 Indici del mercato elettrico e del gas (new):
-<b>PUN</b>: {indexes["pun"]:.5f} €/kWh
-<b>MGP Gas</b>: {indexes["mgp_gas"]:.5f} €/Smc
+{indexes}
     """
 
     await context.bot.send_message(

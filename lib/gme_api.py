@@ -1,15 +1,29 @@
 #!/usr/bin/env python3
 
+from dataclasses import dataclass
 import requests
+from lib.util import icon
 from bs4 import BeautifulSoup
-from typing import TypedDict
 
 BASE_URL = "https://www.mercatoelettrico.org/it/{}"
 
 
-class Indexes(TypedDict):
+@dataclass
+class Indexes:
     pun: float
     mgp_gas: float
+
+    def __str__(self):
+        return f"""
+<b>PUN</b>: {self.pun:.5f} €/kWh
+<b>MGP Gas</b>: {self.mgp_gas:.5f} €/Smc
+        """
+
+    def str_avg(self, avg):
+        return f"""
+<b>PUN</b>: {self.pun:.5f} €/kWh {icon(self.pun, avg)}
+<b>MGP Gas</b>: {self.mgp_gas:.5f} €/Smc {icon(self.mgp_gas, avg)}
+        """
 
 
 def to_float(value: str) -> float:
@@ -47,10 +61,7 @@ def get_indexes() -> Indexes:
         .text
     )
 
-    return {
-        "pun": pun_avg,
-        "mgp_gas": mgp_gas,
-    }
+    return Indexes(pun=pun_avg, mgp_gas=mgp_gas)
 
 
 if __name__ == "__main__":
