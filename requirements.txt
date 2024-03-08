@@ -2,3 +2,4 @@ beautifulsoup4
 python-dateutil
 python-telegram-bot[job-queue]
 requests
+types-beautifulsoup4

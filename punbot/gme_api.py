@@ -2,7 +2,7 @@
 
 from dataclasses import dataclass
 import requests
-from lib.util import icon
+from punbot.util import icon
 from bs4 import BeautifulSoup
 
 BASE_URL = "https://www.mercatoelettrico.org/it/{}"

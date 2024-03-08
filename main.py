@@ -6,8 +6,8 @@ import datetime
 from dateutil import tz
 from telegram import constants
 from telegram.ext import Application, ContextTypes
-from lib.gme_api import Indexes, get_indexes
-from lib.util import average
+from punbot.gme_api import Indexes, get_indexes
+from punbot.util import average
 import json
 
 logging.basicConfig(
