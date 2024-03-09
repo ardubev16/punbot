@@ -1,69 +1,49 @@
 #!/usr/bin/env python3
 
-import os
-import logging
 import datetime
+import logging
+
 from dateutil import tz
+from punbot.gme_api import get_prices
+from punbot.sqlite import SQLite
+from pydantic import Field
+from pydantic_settings import BaseSettings
 from telegram import constants
 from telegram.ext import Application, ContextTypes
-from punbot.gme_api import Indexes, get_indexes
-from punbot.util import average
-import json
 
 logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     level=logging.INFO,
 )
 
-CHAT_ID = int(os.environ["CHAT_ID"])
-INDEXES_FILE = "/data/indexes.json"
+
+class Settings(BaseSettings):
+    CHAT_ID: int = Field(default=...)
+    TELEGRAM_TOKEN: str = Field(default=...)
+    DB_PATH: str = Field(default="/data/prices.db")
 
 
-def get_old_indexes():
-    if os.path.exists(INDEXES_FILE):
-        with open(INDEXES_FILE, "r") as f:
-            return json.load(f)
-    return {
-        "pun": [],
-        "mgp_gas": [],
-    }
-
-
-def save_indexes(indexes):
-    with open(INDEXES_FILE, "w") as f:
-        json.dump(indexes, f)
-
-
-def update_indexes(indexes, new_value: Indexes):
-    indexes["pun"].append(new_value.pun)
-    indexes["mgp_gas"].append(new_value.mgp_gas)
-    if len(indexes) > 30:
-        indexes["pun"].pop(0)
-        indexes["mgp_gas"].pop(0)
-
-    return indexes
+settings = Settings()
 
 
 async def job_handler(context: ContextTypes.DEFAULT_TYPE):
-    indexes = get_indexes()
-    old_indexes = get_old_indexes()
-    new_indexes = update_indexes(old_indexes, indexes)
-    save_indexes(new_indexes)
+    sqlite = SQLite(settings.DB_PATH)
+    sqlite.create_table()
 
-    pun_avg = average(new_indexes["pun"])
-    mgp_gas_avg = average(new_indexes["mgp_gas"])
-    avg_indexes = Indexes(pun_avg, mgp_gas_avg)
+    new_prices = get_prices()
+    sqlite.insert(new_prices)
+    avg_prices = sqlite.get_n_average(30)
 
     message = f"""
 Indici del mercato elettrico e del gas (30d avg):
-{avg_indexes.str_avg(avg_indexes)}
+{avg_prices.str_with_diff(new_prices)}
 
 Indici del mercato elettrico e del gas (new):
-{indexes}
+{new_prices}
     """
 
     await context.bot.send_message(
-        chat_id=CHAT_ID,
+        chat_id=settings.CHAT_ID,
         text=message,
         disable_web_page_preview=True,
         disable_notification=True,
@@ -71,13 +51,17 @@ Indici del mercato elettrico e del gas (new):
     )
 
 
-if __name__ == "__main__":
-    token = os.environ["TELEGRAM_TOKEN"]
-    application = Application.builder().token(token).build()
+def main() -> int:
+    application = Application.builder().token(settings.TELEGRAM_TOKEN).build()
 
     application.job_queue.run_daily(
         job_handler,
         time=datetime.time(hour=8, minute=0, second=0, tzinfo=tz.gettz("Europe/Rome")),
     )
-
     application.run_polling()
+
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

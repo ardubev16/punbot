@@ -6,6 +6,6 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 COPY main.py .
-COPY lib ./lib
+COPY punbot ./punbot
 
 CMD [ "python3", "main.py" ]

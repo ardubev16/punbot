@@ -1,28 +1,38 @@
 #!/usr/bin/env python3
 
 from dataclasses import dataclass
+
 import requests
-from punbot.util import icon
 from bs4 import BeautifulSoup
 
 BASE_URL = "https://www.mercatoelettrico.org/it/{}"
 
 
+def icon(avg: float, new_value: float):
+    diff = new_value - avg
+    if diff > 0:
+        return "📈"
+    elif diff < 0:
+        return "📉"
+    else:
+        return "🔷"
+
+
 @dataclass
-class Indexes:
+class Prices:
     pun: float
-    mgp_gas: float
+    mgp: float
 
     def __str__(self):
         return f"""
 <b>PUN</b>: {self.pun:.5f} €/kWh
-<b>MGP Gas</b>: {self.mgp_gas:.5f} €/Smc
+<b>MGP</b>: {self.mgp:.5f} €/Smc
         """
 
-    def str_avg(self, avg):
+    def str_with_diff(self, new_prices: "Prices") -> str:
         return f"""
-<b>PUN</b>: {self.pun:.5f} €/kWh {icon(self.pun, avg)}
-<b>MGP Gas</b>: {self.mgp_gas:.5f} €/Smc {icon(self.mgp_gas, avg)}
+<b>PUN</b>: {self.pun:.5f} €/kWh {icon(self.pun, new_prices.pun)}
+<b>MGP</b>: {self.mgp:.5f} €/Smc {icon(self.mgp, new_prices.mgp)}
         """
 
 
@@ -38,7 +48,7 @@ def to_smc(value: str) -> float:
     return to_float(value) * 0.0105833
 
 
-def get_indexes() -> Indexes:
+def get_prices() -> Prices:
     response = requests.get(BASE_URL.format("tools/AccessoDati.aspx"))
     soup = BeautifulSoup(response.text, "html.parser")
     inputs = {i["name"]: i.get("value") for i in soup.find_all("input")}
@@ -54,15 +64,15 @@ def get_indexes() -> Indexes:
     s.post(BASE_URL.format("tools/AccessoDati.aspx"), data=data)
     response = s.get(BASE_URL.format("default.aspx"))
     soup = BeautifulSoup(response.text, "html.parser")
-    pun_avg = to_kwh(soup.find("span", {"id": "ContentPlaceHolder1_lblMedia"}).text)
-    mgp_gas = to_smc(
+    pun = to_kwh(soup.find("span", {"id": "ContentPlaceHolder1_lblMedia"}).text)
+    mgp = to_smc(
         soup.find("table", {"id": "ContentPlaceHolder1_gvMGPGas"})
         .find_all("table")[3]
         .text
     )
 
-    return Indexes(pun=pun_avg, mgp_gas=mgp_gas)
+    return Prices(pun=pun, mgp=mgp)
 
 
 if __name__ == "__main__":
-    print(get_indexes())
+    print(get_prices())
