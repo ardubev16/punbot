@@ -10,12 +10,12 @@ BASE_URL = "https://www.mercatoelettrico.org/it/{}"
 
 def icon(avg: float, new_value: float):
     diff = new_value - avg
-    if diff > 0:
-        return "📈"
-    elif diff < 0:
-        return "📉"
-    else:
+    if abs(diff) < 0.00001:
         return "🔷"
+    elif diff > 0:
+        return "📈"
+    else:
+        return "📉"
 
 
 @dataclass
@@ -24,16 +24,15 @@ class Prices:
     mgp: float
 
     def __str__(self):
-        return f"""
+        return f"""\
 <b>PUN</b>: {self.pun:.5f} €/kWh
 <b>MGP</b>: {self.mgp:.5f} €/Smc
         """
 
     def str_with_diff(self, new_prices: "Prices") -> str:
-        return f"""
+        return f"""\
 <b>PUN</b>: {self.pun:.5f} €/kWh {icon(self.pun, new_prices.pun)}
-<b>MGP</b>: {self.mgp:.5f} €/Smc {icon(self.mgp, new_prices.mgp)}
-        """
+<b>MGP</b>: {self.mgp:.5f} €/Smc {icon(self.mgp, new_prices.mgp)}"""
 
 
 def to_float(value: str) -> float:
@@ -65,11 +64,7 @@ def get_prices() -> Prices:
     response = s.get(BASE_URL.format("default.aspx"))
     soup = BeautifulSoup(response.text, "html.parser")
     pun = to_kwh(soup.find("span", {"id": "ContentPlaceHolder1_lblMedia"}).text)
-    mgp = to_smc(
-        soup.find("table", {"id": "ContentPlaceHolder1_gvMGPGas"})
-        .find_all("table")[3]
-        .text
-    )
+    mgp = to_smc(soup.find("table", {"id": "ContentPlaceHolder1_gvMGPGas"}).find_all("table")[3].text)
 
     return Prices(pun=pun, mgp=mgp)
 

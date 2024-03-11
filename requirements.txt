@@ -1,6 +1,6 @@
+apscheduler
 beautifulsoup4
 pydantic-settings
-python-dateutil
-python-telegram-bot[job-queue]
+python-telegram-bot
 requests
 types-beautifulsoup4
