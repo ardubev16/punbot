@@ -5,7 +5,7 @@
     ":automergeRequireAllStatusChecks",
     ":automergeStableNonMajor",
     "config:recommended",
-    "group:allNonMajor",
+    "group:recommended",
     "security:openssf-scorecard"
   ]
 }
