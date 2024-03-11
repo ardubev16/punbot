@@ -4,6 +4,7 @@
     ":assignAndReview(ardubev16)",
     ":automergeStableNonMajor",
     "config:recommended",
+    "group:allNonMajor",
     "group:recommended",
     "security:openssf-scorecard"
   ]
