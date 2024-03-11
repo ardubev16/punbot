@@ -1,6 +1,5 @@
-apscheduler
-beautifulsoup4
-pydantic-settings
-python-telegram-bot
-requests
-types-beautifulsoup4
+apscheduler==3.10.4
+beautifulsoup4==4.12.3
+pydantic-settings==2.2.1
+python-telegram-bot==21.0.1
+types-beautifulsoup4==4.12.0.20240229
