@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 from dataclasses import dataclass
 
 import requests
@@ -8,14 +6,16 @@ from bs4 import BeautifulSoup
 BASE_URL = "https://www.mercatoelettrico.org/it/{}"
 
 
-def icon(avg: float, new_value: float):
+def icon(avg: float, new_value: float) -> str:
+    MAX_DIFF = 0.00001  # noqa: N806
+
     diff = new_value - avg
-    if abs(diff) < 0.00001:
+    if abs(diff) < MAX_DIFF:
         return "🔷"
-    elif diff > 0:
+    if diff > 0:
         return "📈"
-    else:
-        return "📉"
+    # diff < 0
+    return "📉"
 
 
 @dataclass
@@ -48,7 +48,7 @@ def to_smc(value: str) -> float:
 
 
 def get_prices() -> Prices:
-    response = requests.get(BASE_URL.format("tools/AccessoDati.aspx"))
+    response = requests.get(BASE_URL.format("tools/AccessoDati.aspx"), timeout=10)
     soup = BeautifulSoup(response.text, "html.parser")
     inputs = {i["name"]: i.get("value") for i in soup.find_all("input")}
     data = {
@@ -70,4 +70,4 @@ def get_prices() -> Prices:
 
 
 if __name__ == "__main__":
-    print(get_prices())
+    print(get_prices())  # noqa: T201

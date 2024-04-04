@@ -18,7 +18,7 @@ logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     level=logging.INFO,
 )
-logger = logging.getLogger(__file__)
+logger = logging.getLogger(__name__)
 
 
 class Settings(BaseSettings):
@@ -42,7 +42,7 @@ Indici del mercato elettrico e del gas (new):
 
     while True:
         try:
-            await bot.send_message(
+            await bot.send_message(  # pyright: ignore[reportCallIssue]
                 chat_id=chat_id,
                 text=message,
                 disable_web_page_preview=True,

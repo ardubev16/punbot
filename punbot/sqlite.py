@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 import sqlite3
 
 from punbot.gme_api import Prices
@@ -15,7 +13,7 @@ class SQLite:
             """\
 CREATE TABLE IF NOT EXISTS prices
 (id INTEGER PRIMARY KEY, timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP, pun REAL, mgp REAL)
-            """
+            """,
         )
         self.conn.commit()
 
