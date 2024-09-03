@@ -3,6 +3,7 @@
   "extends": [
     ":assignAndReview(ardubev16)",
     ":automergeStableNonMajor",
+    ":disableDependencyDashboard",
     "config:recommended",
     "group:allNonMajor",
     "group:recommended",
