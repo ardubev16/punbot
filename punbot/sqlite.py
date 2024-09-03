@@ -26,7 +26,7 @@ CREATE TABLE IF NOT EXISTS prices
 
     def get_n_average(self, n: int) -> Prices:
         self.cursor.execute(
-            "SELECT AVG(pun), AVG(mgp) FROM prices ORDER BY timestamp DESC LIMIT ?",
+            "SELECT AVG(pun), AVG(mgp) FROM (SELECT * FROM prices ORDER BY timestamp DESC LIMIT ?)",
             (n,),
         )
         prices = self.cursor.fetchone()
