@@ -2,8 +2,9 @@ FROM python:3.12.5-alpine3.19
 
 WORKDIR /app
 
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+COPY --from=ghcr.io/astral-sh/uv:0.4.3 /uv /bin/uv
+COPY pyproject.toml .
+RUN uv pip install --system -r pyproject.toml
 
 COPY main.py .
 COPY punbot ./punbot

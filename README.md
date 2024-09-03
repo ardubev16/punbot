@@ -16,5 +16,6 @@ Per l'avvio utilizzare il seguente comando:
 docker run --rm -d ghcr.io/ardubev16/punbot:latest \
 -v ./data:/data:rw \
 -e TELEGRAM_TOKEN=<your-telegram-token> \
--e CHAT_ID=<yuor-chat-id>
+-e CHAT_ID=<yuor-chat-id> \
+-e TZ=Europe/Rome
 ```
