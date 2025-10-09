@@ -1,12 +1,18 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
-    ":assignAndReview(ardubev16)",
-    ":automergeStableNonMajor",
-    ":disableDependencyDashboard",
     "config:recommended",
-    "group:allNonMajor",
     "group:recommended",
-    "security:openssf-scorecard"
+    "group:allNonMajor",
+    "security:openssf-scorecard",
+    ":assignAndReview(ardubev16)",
+    ":disableDependencyDashboard"
+  ],
+  "packageRules": [
+    {
+      "matchPackageNames": ["python"],
+      "matchUpdateTypes": ["minor"],
+      "enabled": false
+    }
   ]
 }
